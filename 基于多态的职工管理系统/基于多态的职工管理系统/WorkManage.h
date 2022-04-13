@@ -30,6 +30,12 @@ public:
 	//读文件	文件为空的标志
 	bool file_is_Empty;
 
+	//统计文件中的职工人数
+	int get_empNum();
+
+	//初始化在职人员
+	void initEmp();
+
 	//析构函数
 	~WorkManage();
 };

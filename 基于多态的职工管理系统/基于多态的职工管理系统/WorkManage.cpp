@@ -5,12 +5,12 @@
 
 //初始化构造函数
 WorkManage::WorkManage() {
-	//1.文件不存在
 	ifstream ifs;
 	ifs.open(FILENAME, ios::in);
 
+	//1.文件不存在
 	if (!ifs.is_open()) {
-		cout << "暂无员工(无名单)" << endl;
+		cout << "暂无员工(无名单)" << endl;	//测试
 		//初始化记录的人数
 		this->EmpNum = 0;
 		//初始化数组的指针
@@ -26,7 +26,7 @@ WorkManage::WorkManage() {
 	char ch;
 	ifs >> ch;
 	if (ifs.eof()) {
-		cout << "暂无员工(名单存在)" << endl;
+		cout << "暂无员工(名单存在)" << endl;	//测试
 		//初始化记录的人数
 		this->EmpNum = 0;
 		//初始化数组的指针
@@ -36,6 +36,39 @@ WorkManage::WorkManage() {
 		ifs.close();
 		return;
 	}
+
+	//3.文件存在且记录了数据
+	int num = this->get_empNum();
+	cout << "职工人数为：" << num << endl;
+	this->EmpNum = num;
+	//初始化文件是否为空
+	this->file_is_Empty = false;
+	//开辟空间
+	this->EmpArray = new Worker * [EmpNum];
+	//将文件中的数据，存到数组中
+	this->initEmp();
+	//测试
+	for (int i = 0; i < this->EmpNum; i++) {
+		cout << "职工姓名：" << this->EmpArray[i]->getName()
+			 << "\t职工编号" << this->EmpArray[i]->getNum()
+			 << "\t部门编号" << this->EmpArray[i]->getPos() << endl;
+	}
+}
+
+//实现获取在职人数的个数的函数
+int WorkManage::get_empNum() {
+	ifstream ifs;
+	ifs.open(FILENAME, ios::in);
+
+	string name;
+	int number;
+	int position;
+
+	int num = 0;
+	while (ifs >> name && ifs >> number && ifs >> position) {
+		num++;
+	}
+	return num;
 }
 
 void WorkManage::Show_Menu() {
@@ -97,26 +130,27 @@ void WorkManage::AddEmp() {
 
 			while (position != 1 && position != 2 && position != 3) {
 				//根据职位的不同，对不同情况下的新员工初始化其类别
-				Worker* worker = NULL;
 				cout << "请重选：" << endl;
 				cout << "1.员工" << endl;
 				cout << "2.经理" << endl;
 				cout << "3.老板" << endl;
 				cin >> position;
-				switch (position) {
-				case 1:
-					worker = new employee(names, number, position);
-					break;
-				case 2:
-					worker = new executive(names, number, position);
-					break;
-				case 3:
-					worker = new Boss(names, number, position);
-					break;
-				}
+			}
+
+			Worker* worker = NULL;
+			switch (position) {
+			case 1:
+				worker = new employee(names, number, position);
+				break;
+			case 2:
+				worker = new executive(names, number, position);
+				break;
+			case 3:
+				worker = new Boss(names, number, position);
+				break;
+			}
 				//创建职工职责，保存到数组中
 			newSpace[this->EmpNum + i] = worker;
-			}
 		}
 		//先释放原本存在的堆区空间EmpArray
 		delete[] this->EmpArray;
@@ -147,6 +181,32 @@ void WorkManage::safe() {
 			<< this->EmpArray[i]->getPos() << endl;
 	}
 	ofs.close();
+}
+
+//初始化员工的实现
+void WorkManage::initEmp() {
+	ifstream ifs;
+	ifs.open(FILENAME, ios::in);
+
+	string name;
+	int number;
+	int position;
+
+	int index = 0;		//测试
+	while (ifs >> name && ifs >> number && ifs >> position) {
+		Worker* worker = NULL;
+		if (position == 1) {
+			worker = new employee(name, number, position);
+		}
+		else if (position == 2) {
+			worker = new executive(name, number, position);
+		}
+		else {
+			worker = new Boss(name, number, position);
+		}
+		this->EmpArray[index] = worker;
+		index++;
+	}	ifs.close();
 }
 
 //析构函数
