@@ -1,0 +1,158 @@
+#include "WorkManage.h"
+#include "Boss.h"
+#include "executive.h"
+#include "employee.h"
+
+//初始化构造函数
+WorkManage::WorkManage() {
+	//1.文件不存在
+	ifstream ifs;
+	ifs.open(FILENAME, ios::in);
+
+	if (!ifs.is_open()) {
+		cout << "暂无员工(无名单)" << endl;
+		//初始化记录的人数
+		this->EmpNum = 0;
+		//初始化数组的指针
+		this->EmpArray = NULL;
+		//初始化文件是否为空
+		this->file_is_Empty = true;
+		ifs.close();
+		return;
+	}
+
+	//2.文件存在，数据为空
+	//c++判断文件是否为空
+	char ch;
+	ifs >> ch;
+	if (ifs.eof()) {
+		cout << "暂无员工(名单存在)" << endl;
+		//初始化记录的人数
+		this->EmpNum = 0;
+		//初始化数组的指针
+		this->EmpArray = NULL;
+		//初始化文件是否为空
+		this->file_is_Empty = true;
+		ifs.close();
+		return;
+	}
+}
+
+void WorkManage::Show_Menu() {
+	cout << "******************************************" << endl;
+	cout << "*********** 欢迎使用职工管理系统 *********" << endl;
+	cout << "************* 0.退出管理系统 *************" << endl;
+	cout << "************* 1.增加职工信息 *************" << endl;
+	cout << "************* 2.显示职工信息 *************" << endl;
+	cout << "************* 3.删除离职职工 *************" << endl;
+	cout << "************* 4.修改职工信息 *************" << endl;
+	cout << "************* 5.查找职工信息 *************" << endl;
+	cout << "************* 6.按照编号排序 *************" << endl;
+	cout << "************* 7.清空所有数据 *************" << endl;
+	cout << "******************************************" << endl;
+	cout << endl;
+}
+
+void WorkManage::ExitSystem() {
+	cout << "欢迎下次使用" << endl;
+	system("pause");
+	exit(0);
+}
+
+//添加员工实现
+void WorkManage::AddEmp() {
+	cout << "请输入入职人数(人数必须大于或等于1)：" << endl;
+	int addNum = 0;	//保存用户输入的数量
+	cin >> addNum;
+
+	if (addNum > 0) {
+		//新空间的大小 = 已有人数大小 + 新添加的大小
+		int newsize = this->EmpNum + addNum;
+		//开辟新空间	newSpace是一个二级指针
+		Worker** newSpace = new Worker * [newsize];
+		//将原来空间下的数据，全部拷贝到新的空间之下
+		if (this->EmpArray != NULL) {
+			for (int i = 0; i < this->EmpNum; i++) {
+				//将已有的员工信息放入更新后的员工空间里
+				//newSpace[]为一级指针
+				newSpace[i] = this->EmpArray[i];
+			}
+		}
+		//用户在前面输入了新添加的人数，根据这个人数来决定用户输入的次数，即循环的次数
+		for (int i = 0; i < addNum; i++) {
+			int number;
+			string names;
+			int position;
+
+			//给用户提供输入的提示
+			cout << "请输入第" << i + 1 << "个新员工的编号：" << endl;
+			cin >> number;
+			cout << "请输入第" << i + 1 << "个新员工的姓名：" << endl;
+			cin >> names;
+			cout << "请选择该职工的岗位：" << endl;
+			cout << "1.员工" << endl;
+			cout << "2.经理" << endl;
+			cout << "3.老板" << endl;
+			cin >> position;
+
+			while (position != 1 && position != 2 && position != 3) {
+				//根据职位的不同，对不同情况下的新员工初始化其类别
+				Worker* worker = NULL;
+				cout << "请重选：" << endl;
+				cout << "1.员工" << endl;
+				cout << "2.经理" << endl;
+				cout << "3.老板" << endl;
+				cin >> position;
+				switch (position) {
+				case 1:
+					worker = new employee(names, number, position);
+					break;
+				case 2:
+					worker = new executive(names, number, position);
+					break;
+				case 3:
+					worker = new Boss(names, number, position);
+					break;
+				}
+				//创建职工职责，保存到数组中
+			newSpace[this->EmpNum + i] = worker;
+			}
+		}
+		//先释放原本存在的堆区空间EmpArray
+		delete[] this->EmpArray;
+		//更改新空间的指向
+		this->EmpArray = newSpace;
+		//更新职工人数
+		this->EmpNum = newsize;
+		//成功添加后保存到文件中
+		this->safe();
+		//提示添加成功
+		cout << "新入职" << addNum << "名新员工" << endl;
+	}
+	else {
+		cout << "输入有误！" << endl;
+	}
+
+	system("pause");	//按任意键继续
+	system("cls");		//清屏操作
+}
+
+void WorkManage::safe() {
+	ofstream ofs;
+	ofs.open(FILENAME, ios::out);
+	//将每个人数据写入到文件中
+	for (int i = 0; i < this->EmpNum; i++) {
+		ofs << this->EmpArray[i]->getName() << " "
+			<< this->EmpArray[i]->getNum() << " "
+			<< this->EmpArray[i]->getPos() << endl;
+	}
+	ofs.close();
+}
+
+//析构函数
+WorkManage::~WorkManage() {
+	if (this->EmpArray != NULL) {
+		delete[] this->EmpArray;
+		this->EmpArray = NULL;
+	}
+}

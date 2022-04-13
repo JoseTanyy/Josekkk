@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "6ac6cd81-7b17-4f8c-a20a-6f787422ba74": {
+      "ProjectGuid": "6ac6cd81-7b17-4f8c-a20a-6f787422ba74",
+      "DisplayName": "基于多态的职工管理系统",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}
