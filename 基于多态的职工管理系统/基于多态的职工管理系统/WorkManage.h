@@ -27,7 +27,7 @@ public:
 	//保存文件
 	void safe();
 
-	//读文件	文件为空的标志
+	//文件为空的标志
 	bool file_is_Empty;
 
 	//统计文件中的职工人数
@@ -35,6 +35,14 @@ public:
 
 	//初始化在职人员
 	void initEmp();
+
+	//显示员工信息
+	void showInformation();
+
+	//删除离职员工的名单
+	void DeleteMem();
+	//返回职工所在位置
+	int ReturnP(int id);
 
 	//析构函数
 	~WorkManage();

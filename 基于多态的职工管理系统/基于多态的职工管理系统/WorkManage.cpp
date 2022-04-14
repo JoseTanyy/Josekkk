@@ -10,7 +10,7 @@ WorkManage::WorkManage() {
 
 	//1.文件不存在
 	if (!ifs.is_open()) {
-		cout << "暂无员工(无名单)" << endl;	//测试
+		//cout << "暂无员工(无名单)" << endl;	//测试
 		//初始化记录的人数
 		this->EmpNum = 0;
 		//初始化数组的指针
@@ -26,7 +26,7 @@ WorkManage::WorkManage() {
 	char ch;
 	ifs >> ch;
 	if (ifs.eof()) {
-		cout << "暂无员工(名单存在)" << endl;	//测试
+		//cout << "暂无员工(名单存在)" << endl;	//测试
 		//初始化记录的人数
 		this->EmpNum = 0;
 		//初始化数组的指针
@@ -39,7 +39,7 @@ WorkManage::WorkManage() {
 
 	//3.文件存在且记录了数据
 	int num = this->get_empNum();
-	cout << "职工人数为：" << num << endl;
+	//cout << "职工人数为：" << num << endl;	//测试
 	this->EmpNum = num;
 	//初始化文件是否为空
 	this->file_is_Empty = false;
@@ -48,14 +48,40 @@ WorkManage::WorkManage() {
 	//将文件中的数据，存到数组中
 	this->initEmp();
 	//测试
-	for (int i = 0; i < this->EmpNum; i++) {
+	/*for (int i = 0; i < this->EmpNum; i++) {
 		cout << "职工姓名：" << this->EmpArray[i]->getName()
 			 << "\t职工编号" << this->EmpArray[i]->getNum()
 			 << "\t部门编号" << this->EmpArray[i]->getPos() << endl;
-	}
+	}*/
 }
 
-//实现获取在职人数的个数的函数
+//初始化员工的实现
+void WorkManage::initEmp() {
+	ifstream ifs;
+	ifs.open(FILENAME, ios::in);
+
+	string name;
+	int number;
+	int position;
+
+	int index = 0;		//测试
+	while (ifs >> name && ifs >> number && ifs >> position) {
+		Worker* worker = NULL;
+		if (position == 1) {
+			worker = new employee(name, number, position);
+		}
+		else if (position == 2) {
+			worker = new executive(name, number, position);
+		}
+		else {
+			worker = new Boss(name, number, position);
+		}
+		this->EmpArray[index] = worker;
+		index++;
+	}	ifs.close();
+}
+
+//获取在职人数的个数
 int WorkManage::get_empNum() {
 	ifstream ifs;
 	ifs.open(FILENAME, ios::in);
@@ -71,6 +97,7 @@ int WorkManage::get_empNum() {
 	return num;
 }
 
+//基本功能，显示菜单
 void WorkManage::Show_Menu() {
 	cout << "******************************************" << endl;
 	cout << "*********** 欢迎使用职工管理系统 *********" << endl;
@@ -86,13 +113,14 @@ void WorkManage::Show_Menu() {
 	cout << endl;
 }
 
+//功能0.显示菜单
 void WorkManage::ExitSystem() {
 	cout << "欢迎下次使用" << endl;
 	system("pause");
 	exit(0);
 }
 
-//添加员工实现
+//功能1.添加员工实现
 void WorkManage::AddEmp() {
 	cout << "请输入入职人数(人数必须大于或等于1)：" << endl;
 	int addNum = 0;	//保存用户输入的数量
@@ -149,8 +177,10 @@ void WorkManage::AddEmp() {
 				worker = new Boss(names, number, position);
 				break;
 			}
-				//创建职工职责，保存到数组中
+			//创建职工职责，保存到数组中
 			newSpace[this->EmpNum + i] = worker;
+			//此时成员表不为空
+			this->file_is_Empty = false;
 		}
 		//先释放原本存在的堆区空间EmpArray
 		delete[] this->EmpArray;
@@ -183,30 +213,79 @@ void WorkManage::safe() {
 	ofs.close();
 }
 
-//初始化员工的实现
-void WorkManage::initEmp() {
-	ifstream ifs;
-	ifs.open(FILENAME, ios::in);
 
-	string name;
-	int number;
-	int position;
-
-	int index = 0;		//测试
-	while (ifs >> name && ifs >> number && ifs >> position) {
-		Worker* worker = NULL;
-		if (position == 1) {
-			worker = new employee(name, number, position);
+//功能2.显示员工信息
+void WorkManage::showInformation() {
+	//判断文件是否为空
+	if (this->file_is_Empty) {
+		cout << "成员表记录为空" << endl;
+	}
+	else {
+		for (int i = 0; i < this->EmpNum; i++) {
+			cout << "职工编号：" << this->EmpArray[i]->getNum()
+				 << "\t部门编号：" << this->EmpArray[i]->getPos()
+				 << "\t职工姓名：" << this->EmpArray[i]->getName() << endl;
 		}
-		else if (position == 2) {
-			worker = new executive(name, number, position);
+	}
+	system("pause");
+	system("cls");
+}
+
+
+//返回职工信息在列表中的位置
+int WorkManage::ReturnP(int id) {
+	int index = -1;
+	for (int i = 0; i < this->EmpNum; i++) {
+		if (this->EmpArray[i]->getNum() == id) {
+			//cout << "职工存在" << endl;
+			index = i;
+			break;
+		}
+	}
+	//cout << "职工不存在" << endl;
+	return index;
+}
+
+//功能3.删除离职员工
+void WorkManage::DeleteMem() {
+	if (this->file_is_Empty) {
+		cout << "暂无在职人员" << endl;
+	}
+	else {
+		int id;
+		cout << "请输入离职员工的工号:" << endl;
+		cin >> id;
+		int result = ReturnP(id);
+
+		if (result != -1) {
+			for (int i = result; i < this->EmpNum - 1; i++) {
+				this->EmpArray[i] = this->EmpArray[i + 1];
+			}
+			this->EmpNum--;	//更新整个数组中记录的人数
+			cout << "删除成功" << endl;
+			//数据同步更新到文件中
+			this->safe();
 		}
 		else {
-			worker = new Boss(name, number, position);
+			cout << "查无此人" << endl;
 		}
-		this->EmpArray[index] = worker;
-		index++;
-	}	ifs.close();
+	}
+
+	ifstream ifs;
+	ifs.open(FILENAME, ios::in);
+	char ch;
+	ifs >> ch;
+	if (ifs.eof()) {
+		//cout << "暂无员工(名单存在)" << endl;	//测试
+		//初始化记录的人数
+		this->EmpNum = 0;
+		//初始化数组的指针
+		this->EmpArray = NULL;
+		//初始化文件是否为空
+		this->file_is_Empty = true;
+		ifs.close();
+		return;
+	}
 }
 
 //析构函数

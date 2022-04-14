@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "WorkManage.h"
 #include "Worker.h"
 #include "Boss.h"
@@ -36,8 +37,12 @@ int main() {
 			wm.AddEmp();
 			break;
 		case 2:
+			wm.showInformation();
 			break;
 		case 3:
+			wm.DeleteMem();
+			system("pause");
+			system("cls");
 			break;
 		case 4:
 			break;
