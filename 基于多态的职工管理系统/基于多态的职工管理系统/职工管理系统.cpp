@@ -45,12 +45,16 @@ int main() {
 			system("cls");
 			break;
 		case 4:
+			wm.Modify();
 			break;
 		case 5:
+			wm.Search();
 			break;
 		case 6:
+			wm.Sort();
 			break;
 		case 7:
+			wm.Clear();
 			break;
 		default:
 			system("cls");

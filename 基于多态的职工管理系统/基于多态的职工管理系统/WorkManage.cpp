@@ -288,9 +288,175 @@ void WorkManage::DeleteMem() {
 	}
 }
 
+//功能4：修改员工信息
+void WorkManage::Modify() {
+	if (this->file_is_Empty) {
+		cout << "暂无在职人员" << endl;
+	}
+	else {
+		int id;
+		cout << "请输入要修改的员工信息的工号:" << endl;
+		cin >> id;
+		int result = ReturnP(id);
+
+		if (result != -1) {
+			delete this->EmpArray[result];
+			int m_id;
+			int m_pos;
+			string m_name;
+
+			cout << "修改员工姓名：" << endl;
+			cin >> m_name;
+			cout << "修改员工工号：" << endl;
+			cin >> m_id;
+			cout << "修改员工职位：" << endl;
+			cin >> m_pos;
+
+			Worker* worker = NULL;
+			switch (m_pos) {
+			case 1:
+				worker = new employee(m_name, m_id, m_pos);
+				break;
+			case 2:
+				worker = new executive(m_name, m_id, m_pos);
+				break;
+			case 3:
+				worker = new Boss(m_name, m_id, m_pos);
+				break;
+			}
+			this->EmpArray[result] = worker;
+			cout << "修改成功!" << endl;
+			this->safe();
+		}
+		else {
+			cout << "查无此人" << endl;
+		}
+	}
+	system("pause");
+	system("cls");
+}
+
+//功能5：查找员工信息
+void WorkManage::Search() {
+	if (this->file_is_Empty) {
+		cout << "暂无在职人员" << endl;
+	}
+	else {
+		int id;
+		cout << "请输入要查找的员工的工号:" << endl;
+		cin >> id;
+		int result = ReturnP(id);
+
+		if (result != -1) {
+			cout << "该员工信息为：" << endl;
+			cout << "职工编号：" << this->EmpArray[result]->getNum()
+				 << "\t部门编号：" << this->EmpArray[result]->getPos()
+				 << "\t职工姓名：" << this->EmpArray[result]->getName() << endl;
+		}
+		else {
+			cout << "查无此人" << endl;
+		}
+	}
+	system("pause");
+	system("cls");
+}
+
+//功能6：按工号大小顺序排列
+void WorkManage::Sort() {
+	if (this->file_is_Empty) {
+		cout << "暂无在职人员" << endl;
+	}
+	else {
+		//冒泡排序
+		int choice;
+		cout << "请选择排序方式：" << endl;
+		cout << "1.升序"
+			 << "\n2.降序" << endl;
+		cin >> choice;
+		if (choice == 1) {
+			int num = this->get_empNum();
+			for (int i = 0; i < num; i++) {
+				for (int j = 0; j < num - i; j++) {
+					if (this->EmpArray[j]->getNum() < this->EmpArray[j + 1]->getNum()) {
+						int t_num = this->EmpArray[j]->getNum();
+						int t_pos = this->EmpArray[j]->getPos();
+						string t_name = this->EmpArray[j]->getName();
+						//交换相邻两个员工之间的信息，完成排序
+						this->EmpArray[j]->putName(this->EmpArray[j + 1]->getName());
+						this->EmpArray[j + 1]->putName(t_name);
+
+						this->EmpArray[j]->putNum(this->EmpArray[j + 1]->getNum());
+						this->EmpArray[j + 1]->putNum(t_num);
+
+						this->EmpArray[j]->putPos(this->EmpArray[j + 1]->getPos());
+						this->EmpArray[j + 1]->putPos(t_pos);
+					}
+				}
+			}
+		}
+		else {
+			int num = this->get_empNum();
+			for (int i = 0; i < num; i++) {
+				for (int j = 0; j < num - i; j++) {
+					if (this->EmpArray[j]->getNum() > this->EmpArray[j + 1]->getNum()) {
+						int t_num = this->EmpArray[j]->getNum();
+						int t_pos = this->EmpArray[j]->getPos();
+						string t_name = this->EmpArray[j]->getName();
+						//交换相邻两个员工之间的信息，完成排序
+						this->EmpArray[j]->putName(this->EmpArray[j + 1]->getName());
+						this->EmpArray[j + 1]->putName(t_name);
+
+						this->EmpArray[j]->putNum(this->EmpArray[j + 1]->getNum());
+						this->EmpArray[j + 1]->putNum(t_num);
+
+						this->EmpArray[j]->putPos(this->EmpArray[j + 1]->getPos());
+						this->EmpArray[j + 1]->putPos(t_pos);
+					}
+				}
+			}
+		}
+	}
+	system("pause");
+	system("cls");
+}
+
+//功能7：清空职工信息
+void WorkManage::Clear() {
+	cout << "确认清空？" << endl;
+	cout << "1.确认"
+		 << "2.返回" << endl;
+	int select;
+	cin >> select;
+
+	if (select == 1) {
+		ofstream ofs(FILENAME, ios::trunc);
+		ofs.close();
+
+		if (this->EmpArray != NULL) {
+			for (int i = 0; i < this->EmpNum; i++) {
+				if (this->EmpArray[i] != NULL) {
+					delete this->EmpArray[i];
+				}
+			}
+			this->EmpNum = 0;
+			delete[] this->EmpArray;
+			this->EmpArray = NULL;
+			this->file_is_Empty = true;
+		}
+		cout << "清楚成功" << endl;
+	}
+	system("pause");
+	system("cls");
+}
+
 //析构函数
 WorkManage::~WorkManage() {
 	if (this->EmpArray != NULL) {
+		for (int i = 0; i < this->EmpNum; i++) {
+			if (this->EmpArray[i] != NULL) {
+				delete this->EmpArray[i];
+			}
+		}
 		delete[] this->EmpArray;
 		this->EmpArray = NULL;
 	}

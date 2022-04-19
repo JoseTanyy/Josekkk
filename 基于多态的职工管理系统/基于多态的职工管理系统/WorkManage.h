@@ -44,6 +44,18 @@ public:
 	//返回职工所在位置
 	int ReturnP(int id);
 
+	//修改员工信息
+	void Modify();
+
+	//查找职工
+	void Search();
+
+	//按编号排序
+	void Sort();
+
+	//清空所有数据
+	void Clear();
+
 	//析构函数
 	~WorkManage();
 };
